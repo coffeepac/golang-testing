@@ -35,6 +35,9 @@ RUN go get -u github.com/tj/node-prune/cmd/node-prune
 RUN go get -u github.com/golang/dep/cmd/dep
 # Versioned Go Prototype (vgo)
 RUN go get -u golang.org/x/vgo
+# Install gometalinter
+RUN go get -u github.com/alecthomas/gometalinter && \
+    gometalinter --install
 
 # install cloc tool
 RUN curl https://raw.githubusercontent.com/AlDanial/cloc/master/cloc -o /usr/bin/cloc \
