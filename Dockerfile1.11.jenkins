@@ -38,6 +38,8 @@ RUN go get -u golang.org/x/vgo
 # Install gometalinter
 RUN go get -u github.com/alecthomas/gometalinter && \
     gometalinter --install
+RUN GO111MODULE=off go get github.com/go-swagger/go-swagger/cmd/swagger && \
+    GO111MODULE=off go install github.com/go-swagger/go-swagger/cmd/swagger
 
 # install cloc tool
 RUN curl https://raw.githubusercontent.com/AlDanial/cloc/master/cloc -o /usr/bin/cloc \
@@ -50,6 +52,9 @@ RUN adduser --quiet jenkins
 RUN echo "jenkins:jenkins" | chpasswd
 
 EXPOSE 22
+
+#  muckery because forge bind mounts over /go directory
+RUN cp /go/bin/* /usr/local/go/bin
 
 RUN mkdir /run/sshd
 CMD ["/usr/sbin/sshd", "-D"]
