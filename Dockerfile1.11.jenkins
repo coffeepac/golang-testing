@@ -1,10 +1,13 @@
-FROM golang:1.11.0-stretch
+FROM golang:1.11.2-stretch
 
 LABEL maintainer="Bo-Yi Wi <appleboy.tw@gmail.com>"
 
-RUN apt-get update && \
-  apt-get upgrade -y
-RUN apt-get install -y libucl-dev zlib1g-dev ssh
+RUN echo 'deb http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y libucl-dev zlib1g-dev ssh software-properties-common && \
+    apt-get -t stretch-backports install -y git
+
 
 RUN git clone https://github.com/upx/upx.git && cd upx && \
   git submodule update --init --recursive && \
@@ -16,28 +19,20 @@ RUN rm -rf /var/cache/apk/*
 RUN curl https://glide.sh/get | sh
 
 # install golang tools
-RUN go get -u github.com/jstemmer/go-junit-report
-RUN go get -u github.com/axw/gocov/gocov
-RUN go get -u github.com/AlekSi/gocov-xml
-RUN go get -u github.com/golang/lint/golint
-RUN go get -u github.com/mitchellh/gox
-# a markdown processor for Go
-RUN go get -u github.com/russross/blackfriday-tool
-# install govendor tool
-RUN go get -u github.com/kardianos/govendor
-# install embedmd tool
-RUN go get -u github.com/campoy/embedmd
-# install misspell tool
-RUN go get -u github.com/client9/misspell/cmd/misspell
-# install node-prune tool
-RUN go get -u github.com/tj/node-prune/cmd/node-prune
-# install dep Go dependency management tool
-RUN go get -u github.com/golang/dep/cmd/dep
-# Versioned Go Prototype (vgo)
-RUN go get -u golang.org/x/vgo
-# Install gometalinter
-RUN go get -u github.com/alecthomas/gometalinter && \
+RUN go get -u github.com/jstemmer/go-junit-report && \
+    go get -u github.com/axw/gocov/gocov && \
+    go get -u github.com/AlekSi/gocov-xml && \
+    go get -u github.com/golang/lint/golint && \
+    go get -u github.com/mitchellh/gox && \
+    go get -u github.com/russross/blackfriday-tool && \
+    go get -u github.com/kardianos/govendor && \
+    go get -u github.com/campoy/embedmd && \
+    go get -u github.com/client9/misspell/cmd/misspell && \
+    go get -u github.com/tj/node-prune/cmd/node-prune && \
+    go get -u github.com/golang/dep/cmd/dep && \
+    go get -u github.com/alecthomas/gometalinter && \
     gometalinter --install
+
 RUN GO111MODULE=off go get github.com/go-swagger/go-swagger/cmd/swagger && \
     GO111MODULE=off go install github.com/go-swagger/go-swagger/cmd/swagger
 
@@ -48,13 +43,14 @@ RUN curl https://raw.githubusercontent.com/AlDanial/cloc/master/cloc -o /usr/bin
 ADD coverage.sh /usr/bin/coverage
 
 #  Additions for jenkins usage as a docker build slave
-RUN adduser --quiet jenkins 
-RUN echo "jenkins:jenkins" | chpasswd
+RUN adduser --quiet jenkins && \
+    echo "jenkins:jenkins" | chpasswd
 
 EXPOSE 22
 
-#  muckery because forge bind mounts over /go directory
-RUN cp /go/bin/* /usr/local/go/bin
+#  create go pkg directory which usually gets created but not always
+RUN mkdir -p /go/pkg/mod/cache/vcs && \
+    chmod -R 777 /go/pkg
 
 RUN mkdir /run/sshd
 CMD ["/usr/sbin/sshd", "-D"]
