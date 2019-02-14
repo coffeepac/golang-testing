@@ -1,4 +1,4 @@
-FROM golang:1.11.2-stretch
+FROM golang:1.11.5-stretch
 
 LABEL maintainer="Bo-Yi Wi <appleboy.tw@gmail.com>"
 
@@ -42,15 +42,8 @@ RUN curl https://raw.githubusercontent.com/AlDanial/cloc/master/cloc -o /usr/bin
 
 ADD coverage.sh /usr/bin/coverage
 
-#  Additions for jenkins usage as a docker build slave
-RUN adduser --quiet jenkins && \
-    echo "jenkins:jenkins" | chpasswd
-
-EXPOSE 22
-
 #  create go pkg directory which usually gets created but not always
 RUN mkdir -p /go/pkg/mod/cache/vcs && \
     chmod -R 777 /go/pkg
 
-RUN mkdir /run/sshd
-CMD ["/usr/sbin/sshd", "-D"]
+RUN chmod -R 777 /go/src
