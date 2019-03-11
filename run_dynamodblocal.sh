@@ -6,4 +6,4 @@
 
 set -xe 
 
-java -Djava.library.path=/var/dynamodb_wd/ -jar DynamoDBLocal.jar -sharedDb -dbPath /var/dynamodb_local $@
+java -Djava.library.path=/var/dynamodb_wd/ -jar /var/dynamodb_wd/DynamoDBLocal.jar -sharedDb -dbPath /var/dynamodb_local $@
