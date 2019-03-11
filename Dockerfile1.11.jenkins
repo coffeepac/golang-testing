@@ -47,3 +47,15 @@ RUN mkdir -p /go/pkg/mod/cache/vcs && \
     chmod -R 777 /go/pkg
 
 RUN chmod -R 777 /go/src
+
+#  install java, install dynamo jar, add script to execute dynamo process
+WORKDIR /var/dynamodb_wd 
+COPY run_dynamodblocal.sh /usr/bin/run_dynamodblocal.sh
+RUN apt install default-jdk -y && \
+    wget -O /tmp/dynamodb_local_latest https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz && \
+    mkdir /var/dynamodb_local && \
+    tar xvf /tmp/dynamodb_local_latest && \
+    rm /tmp/dynamodb_local_latest && \
+    chmod +x /usr/bin/run_dynamodblocal.sh
+
+COPY log4j2.xml /var/dynamodb_wd/log4j2.xml
